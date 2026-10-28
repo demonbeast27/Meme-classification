@@ -2,7 +2,7 @@ gradio
 torch
 transformers
 pillow
-opencv-python
+opencv-python-headless
 pytesseract
 numpy
 datasets
