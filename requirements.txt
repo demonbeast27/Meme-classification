@@ -1,0 +1,8 @@
+gradio
+torch
+transformers
+pillow
+opencv-python
+pytesseract
+numpy
+datasets

@@ -1,0 +1,58 @@
+{
+  "label_schema": {
+    "status": "PASS",
+    "gpt_names": [
+      "Yes",
+      "No"
+    ],
+    "hum_names": [
+      "Yes",
+      "No"
+    ],
+    "mapping_correct": true
+  },
+  "human_response_null": {
+    "status": "PASS",
+    "null_count": 100,
+    "total_sampled": 100,
+    "null_pct": 1.0,
+    "gpt_distribution": {
+      "1": 100
+    }
+  },
+  "cache_isolation": {
+    "status": "PASS",
+    "cache_dir": "D:\\MEME_CLASSIFIER_BERT_CLIP\\.cache\\hf_stream",
+    "is_project_local": true,
+    "current_size": 26529
+  },
+  "no_images_stream": {
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_s": 15.6,
+    "cache_growth_bytes": 0,
+    "image_files_saved": 0,
+    "has_done_marker": true
+  },
+  "sample_limit": {
+    "status": "PASS",
+    "csv_row_count": 20
+  },
+  "app_isolation": {
+    "status": "PASS",
+    "imports_datasets_lib": false,
+    "imports_stream_dataset": false,
+    "imports_dataset_config": false
+  },
+  "no_training": {
+    "status": "PASS",
+    "training_keywords_found": []
+  },
+  "network_measurement": {
+    "status": "NOTE",
+    "method": "cache dir size delta (proxy for network bytes)",
+    "limitation": "No per-process network counter available in Python stdlib"
+  },
+  "total_cache_bytes": 26529,
+  "total_cache_human": "25.9 KB"
+}

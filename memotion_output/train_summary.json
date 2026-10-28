@@ -1,0 +1,77 @@
+{
+  "status": "SUCCESS",
+  "epochs": 5,
+  "best_val_macro_f1": 0.807,
+  "best_thresholds": {
+    "funny": 0.7999999999999996,
+    "sarcastic": 0.7999999999999996,
+    "offensive": 0.6599999999999997,
+    "wholesome": 0.5,
+    "neutral": 0.5,
+    "political": 0.5
+  },
+  "best_val_metrics": {
+    "funny": {
+      "status": "EVALUATED",
+      "threshold": 0.8,
+      "support_pos": 75,
+      "support_neg": 25,
+      "tp": 59,
+      "fp": 14,
+      "tn": 11,
+      "fn": 16,
+      "accuracy": 0.7,
+      "precision": 0.808,
+      "recall": 0.787,
+      "f1": 0.797,
+      "specificity": 0.44
+    },
+    "sarcastic": {
+      "status": "EVALUATED",
+      "threshold": 0.8,
+      "support_pos": 77,
+      "support_neg": 23,
+      "tp": 66,
+      "fp": 17,
+      "tn": 6,
+      "fn": 11,
+      "accuracy": 0.72,
+      "precision": 0.795,
+      "recall": 0.857,
+      "f1": 0.825,
+      "specificity": 0.261
+    },
+    "offensive": {
+      "status": "EVALUATED",
+      "threshold": 0.66,
+      "support_pos": 65,
+      "support_neg": 35,
+      "tp": 57,
+      "fp": 21,
+      "tn": 14,
+      "fn": 8,
+      "accuracy": 0.71,
+      "precision": 0.731,
+      "recall": 0.877,
+      "f1": 0.797,
+      "specificity": 0.4
+    },
+    "wholesome": {
+      "status": "UNKNOWN_MASKED",
+      "support_pos": 0,
+      "support_neg": 0
+    },
+    "neutral": {
+      "status": "UNKNOWN_MASKED",
+      "support_pos": 0,
+      "support_neg": 0
+    },
+    "political": {
+      "status": "UNKNOWN_MASKED",
+      "support_pos": 0,
+      "support_neg": 0
+    }
+  },
+  "checkpoint_path": "D:\\MEME_CLASSIFIER_BERT_CLIP\\checkpoints\\best_multimodal_classifier.pt",
+  "elapsed_seconds": 660.5
+}

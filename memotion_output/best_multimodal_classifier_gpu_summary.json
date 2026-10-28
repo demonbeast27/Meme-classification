@@ -1,0 +1,87 @@
+{
+  "status": "SUCCESS",
+  "device": "cuda",
+  "device_name": "NVIDIA GeForce RTX 4050 Laptop GPU",
+  "peak_vram_mib": 657.8,
+  "epochs": 5,
+  "epoch_timings_seconds": [
+    411.7,
+    165.4,
+    130.0,
+    193.4,
+    111.7
+  ],
+  "best_val_macro_f1": 0.749,
+  "best_thresholds": {
+    "funny": 0.6999999999999997,
+    "sarcastic": 0.7999999999999996,
+    "offensive": 0.6199999999999999,
+    "wholesome": 0.5,
+    "neutral": 0.5,
+    "political": 0.5
+  },
+  "best_val_metrics": {
+    "funny": {
+      "status": "EVALUATED",
+      "threshold": 0.7,
+      "support_pos": 539,
+      "support_neg": 159,
+      "tp": 474,
+      "fp": 133,
+      "tn": 26,
+      "fn": 65,
+      "accuracy": 0.716,
+      "precision": 0.781,
+      "recall": 0.879,
+      "f1": 0.827,
+      "specificity": 0.164
+    },
+    "sarcastic": {
+      "status": "EVALUATED",
+      "threshold": 0.8,
+      "support_pos": 537,
+      "support_neg": 161,
+      "tp": 404,
+      "fp": 123,
+      "tn": 38,
+      "fn": 133,
+      "accuracy": 0.633,
+      "precision": 0.767,
+      "recall": 0.752,
+      "f1": 0.759,
+      "specificity": 0.236
+    },
+    "offensive": {
+      "status": "EVALUATED",
+      "threshold": 0.62,
+      "support_pos": 437,
+      "support_neg": 261,
+      "tp": 305,
+      "fp": 180,
+      "tn": 81,
+      "fn": 132,
+      "accuracy": 0.553,
+      "precision": 0.629,
+      "recall": 0.698,
+      "f1": 0.662,
+      "specificity": 0.31
+    },
+    "wholesome": {
+      "status": "UNKNOWN_MASKED",
+      "support_pos": 0,
+      "support_neg": 0
+    },
+    "neutral": {
+      "status": "UNKNOWN_MASKED",
+      "support_pos": 0,
+      "support_neg": 0
+    },
+    "political": {
+      "status": "UNKNOWN_MASKED",
+      "support_pos": 0,
+      "support_neg": 0
+    }
+  },
+  "checkpoint_path": "D:\\MEME_CLASSIFIER_BERT_CLIP\\checkpoints\\best_multimodal_classifier_gpu.pt",
+  "elapsed_seconds": 1207.6
+}

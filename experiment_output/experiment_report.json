@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-10-25T14:19:57.472040",
+  "dataset": "aliencaocao/multimodal_meme_classification_singapore",
+  "split": "test",
+  "streaming": true,
+  "decode_images": false,
+  "max_samples": 20,
+  "records_processed": 20,
+  "records_skipped_duplicate": 0,
+  "image_decode_ok": 0,
+  "image_decode_fail": 0,
+  "label_distribution": {
+    "non-hateful": 20
+  },
+  "sub_datasets_seen": [
+    "ig_bukittimahpoly"
+  ],
+  "cache_dir": "D:\\MEME_CLASSIFIER_BERT_CLIP\\.cache\\hf_stream",
+  "cache_bytes_before": 26529,
+  "cache_bytes_after": 26529,
+  "cache_bytes_used_this_run": 0,
+  "cache_human": "25.9 KB",
+  "output_csv": "D:\\MEME_CLASSIFIER_BERT_CLIP\\experiment_output\\sg_meme_metadata.csv",
+  "label_note": "Only 'hateful' and 'non-hateful' are explicitly annotated. Do NOT use these labels for the other 6 classifier categories.",
+  "license_note": "GPL-3.0 \u2013 check compliance before publishing.",
+  "label_reliability_note": "gpt_response is GPT-4 generated and noisy. human_response is null for most test-split records.",
+  "clear_cache_command": "import shutil, dataset_config; shutil.rmtree(dataset_config.CACHE_DIR, ignore_errors=True)"
+}

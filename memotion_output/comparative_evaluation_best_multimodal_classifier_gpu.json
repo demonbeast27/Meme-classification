@@ -1,0 +1,129 @@
+{
+  "timestamp": "2026-10-25T20:01:04",
+  "evaluated_samples": 698,
+  "split": "validation",
+  "baseline_thresholds": {
+    "funny": 0.47999999999999987,
+    "sarcastic": 0.47999999999999987,
+    "offensive": 0.49999999999999983,
+    "wholesome": 0.5,
+    "neutral": 0.5,
+    "political": 0.5
+  },
+  "multimodal_thresholds": {
+    "funny": 0.6999999999999997,
+    "sarcastic": 0.7999999999999996,
+    "offensive": 0.6199999999999999,
+    "wholesome": 0.5,
+    "neutral": 0.5,
+    "political": 0.5
+  },
+  "comparisons": {
+    "funny": {
+      "status": "EVALUATED",
+      "support_pos": 539,
+      "support_neg": 159,
+      "multimodal": {
+        "precision": 0.781,
+        "recall": 0.879,
+        "f1": 0.827,
+        "specificity": 0.164,
+        "tp": 474,
+        "fp": 133,
+        "tn": 26,
+        "fn": 65,
+        "threshold": 0.7
+      },
+      "baseline": {
+        "precision": 0.785,
+        "recall": 0.876,
+        "f1": 0.828,
+        "specificity": 0.189,
+        "tp": 472,
+        "fp": 129,
+        "tn": 30,
+        "fn": 67,
+        "threshold": 0.48
+      }
+    },
+    "sarcastic": {
+      "status": "EVALUATED",
+      "support_pos": 537,
+      "support_neg": 161,
+      "multimodal": {
+        "precision": 0.767,
+        "recall": 0.752,
+        "f1": 0.759,
+        "specificity": 0.236,
+        "tp": 404,
+        "fp": 123,
+        "tn": 38,
+        "fn": 133,
+        "threshold": 0.8
+      },
+      "baseline": {
+        "precision": 0.763,
+        "recall": 0.765,
+        "f1": 0.764,
+        "specificity": 0.205,
+        "tp": 411,
+        "fp": 128,
+        "tn": 33,
+        "fn": 126,
+        "threshold": 0.48
+      }
+    },
+    "offensive": {
+      "status": "EVALUATED",
+      "support_pos": 437,
+      "support_neg": 261,
+      "multimodal": {
+        "precision": 0.629,
+        "recall": 0.698,
+        "f1": 0.662,
+        "specificity": 0.31,
+        "tp": 305,
+        "fp": 180,
+        "tn": 81,
+        "fn": 132,
+        "threshold": 0.62
+      },
+      "baseline": {
+        "precision": 0.587,
+        "recall": 0.503,
+        "f1": 0.542,
+        "specificity": 0.406,
+        "tp": 220,
+        "fp": 155,
+        "tn": 106,
+        "fn": 217,
+        "threshold": 0.5
+      }
+    },
+    "wholesome": {
+      "status": "UNKNOWN_MASKED",
+      "support_pos": 0,
+      "support_neg": 0,
+      "note": "Not annotated in dataset; excluded from metrics"
+    },
+    "neutral": {
+      "status": "UNKNOWN_MASKED",
+      "support_pos": 0,
+      "support_neg": 0,
+      "note": "Not annotated in dataset; excluded from metrics"
+    },
+    "political": {
+      "status": "UNKNOWN_MASKED",
+      "support_pos": 0,
+      "support_neg": 0,
+      "note": "Not annotated in dataset; excluded from metrics"
+    }
+  },
+  "macro_f1_baseline": 0.711,
+  "macro_f1_multimodal": 0.749,
+  "macro_f1_delta": 0.038,
+  "micro_f1_baseline": 0.729,
+  "micro_f1_multimodal": 0.755,
+  "micro_f1_delta": 0.027,
+  "elapsed_seconds": 42.1
+}

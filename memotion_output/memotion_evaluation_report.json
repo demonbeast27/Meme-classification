@@ -1,0 +1,57 @@
+{
+  "timestamp": "2026-10-25T14:32:50.043913",
+  "dataset": "Ahren09/MMSoc_Memotion",
+  "split": "test",
+  "sample_limit": 30,
+  "total_records_processed": 30,
+  "unique_records": 30,
+  "decode_images": true,
+  "category_distribution": {
+    "hateful": {
+      "pos": 0,
+      "neg": 13,
+      "unk": 17
+    },
+    "non-hateful": {
+      "pos": 13,
+      "neg": 0,
+      "unk": 17
+    },
+    "funny": {
+      "pos": 18,
+      "neg": 12,
+      "unk": 0
+    },
+    "offensive": {
+      "pos": 17,
+      "neg": 13,
+      "unk": 0
+    },
+    "wholesome": {
+      "pos": 12,
+      "neg": 18,
+      "unk": 0
+    },
+    "sarcastic": {
+      "pos": 23,
+      "neg": 7,
+      "unk": 0
+    },
+    "political": {
+      "pos": 0,
+      "neg": 0,
+      "unk": 30
+    },
+    "neutral": {
+      "pos": 12,
+      "neg": 18,
+      "unk": 0
+    }
+  },
+  "cache_dir": "D:\\MEME_CLASSIFIER_BERT_CLIP\\.cache\\memotion_stream",
+  "cache_bytes_before": 0,
+  "cache_bytes_after": 6822,
+  "cache_growth_bytes": 6822,
+  "cache_human": "6.7 KB",
+  "output_csv": "D:\\MEME_CLASSIFIER_BERT_CLIP\\memotion_output\\memotion_processed_samples.csv"
+}

@@ -1,0 +1,83 @@
+{
+  "status": "SUCCESS",
+  "device": "cuda",
+  "device_name": "NVIDIA GeForce RTX 4050 Laptop GPU",
+  "peak_vram_mib": 625.5,
+  "epochs": 1,
+  "epoch_timings_seconds": [
+    43.4
+  ],
+  "best_val_macro_f1": 0.489,
+  "best_thresholds": {
+    "funny": 0.5399999999999998,
+    "sarcastic": 0.5399999999999998,
+    "offensive": 0.2,
+    "wholesome": 0.5,
+    "neutral": 0.5,
+    "political": 0.5
+  },
+  "best_val_metrics": {
+    "funny": {
+      "status": "EVALUATED",
+      "threshold": 0.54,
+      "support_pos": 1,
+      "support_neg": 3,
+      "tp": 0,
+      "fp": 0,
+      "tn": 3,
+      "fn": 1,
+      "accuracy": 0.75,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "specificity": 1.0
+    },
+    "sarcastic": {
+      "status": "EVALUATED",
+      "threshold": 0.54,
+      "support_pos": 3,
+      "support_neg": 1,
+      "tp": 2,
+      "fp": 0,
+      "tn": 1,
+      "fn": 1,
+      "accuracy": 0.75,
+      "precision": 1.0,
+      "recall": 0.667,
+      "f1": 0.8,
+      "specificity": 1.0
+    },
+    "offensive": {
+      "status": "EVALUATED",
+      "threshold": 0.2,
+      "support_pos": 2,
+      "support_neg": 2,
+      "tp": 2,
+      "fp": 2,
+      "tn": 0,
+      "fn": 0,
+      "accuracy": 0.5,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.667,
+      "specificity": 0.0
+    },
+    "wholesome": {
+      "status": "UNKNOWN_MASKED",
+      "support_pos": 0,
+      "support_neg": 0
+    },
+    "neutral": {
+      "status": "UNKNOWN_MASKED",
+      "support_pos": 0,
+      "support_neg": 0
+    },
+    "political": {
+      "status": "UNKNOWN_MASKED",
+      "support_pos": 0,
+      "support_neg": 0
+    }
+  },
+  "checkpoint_path": "D:\\MEME_CLASSIFIER_BERT_CLIP\\checkpoints\\smoke_test_model.pt",
+  "elapsed_seconds": 82.8
+}
