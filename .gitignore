@@ -13,3 +13,7 @@ venv/
 env/
 .env
 .venv/
+
+# Cloned Hugging Face Space
+Meme_classification/
+
