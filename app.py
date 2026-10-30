@@ -12,25 +12,17 @@ from PIL import Image
 import pytesseract
 import numpy as np
 import cv2
+import threading
 
 class BertClipMemeAnalyzer:
     def __init__(self):
-        # BERT for sentiment analysis
-        self.bert_sentiment = pipeline(
-            "sentiment-analysis",
-            model="nlptown/bert-base-multilingual-uncased-sentiment"
-        )
-        
-        # Alternative: Use a BERT model specifically
-        # self.bert_model = BertForSequenceClassification.from_pretrained(
-        #     "bert-base-uncased", 
-        #     num_labels=3  # positive, negative, neutral
-        # )
-        # self.bert_tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-        
-        # CLIP for zero-shot image classification
-        self.clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-        self.clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        self.bert_sentiment = None
+        self.clip_model = None
+        self.clip_processor = None
+        self.is_loaded = False
+        self.is_loading = False
+        self.load_error = None
+        self.load_lock = threading.Lock()
         
         # Define meme categories for CLIP
         self.meme_categories = [
@@ -43,6 +35,30 @@ class BertClipMemeAnalyzer:
             "a political meme",
             "a neutral meme"
         ]
+
+    def load_models(self):
+        """Loads models asynchronously so the web server can bind its port immediately."""
+        with self.load_lock:
+            if self.is_loaded:
+                return
+            self.is_loading = True
+            try:
+                print("[STARTUP] Loading BERT sentiment analysis pipeline...", flush=True)
+                self.bert_sentiment = pipeline(
+                    "sentiment-analysis",
+                    model="nlptown/bert-base-multilingual-uncased-sentiment"
+                )
+                print("[STARTUP] Loading CLIP model & processor...", flush=True)
+                self.clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+                self.clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+                self.clip_model.eval()
+                self.is_loaded = True
+                print("[STARTUP] All models loaded successfully into memory!", flush=True)
+            except Exception as e:
+                self.load_error = str(e)
+                print(f"[ERROR] Failed to load models: {e}", flush=True)
+            finally:
+                self.is_loading = False
         
     def extract_text_from_image(self, image):
         """Extract text using OCR"""
@@ -84,6 +100,13 @@ class BertClipMemeAnalyzer:
         return results
     
     def analyze_meme(self, text_input, image):
+        if not self.is_loaded:
+            if self.is_loading:
+                return "⏳ **Models are currently initializing in the background...**\nPlease wait ~30 seconds for the model weights to finish downloading/loading and click Submit again!"
+            if self.load_error:
+                return f"❌ **Model loading failed:**\n`{self.load_error}`"
+            self.load_models()
+
         output = "## 🎭 Meme Analysis Results\n\n"
         
         # Extract text if image provided
@@ -192,4 +215,7 @@ demo = gr.Interface(
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7860))
+    print(f"[SERVER] Launching background thread for model initialization...", flush=True)
+    threading.Thread(target=analyzer.load_models, daemon=True).start()
+    print(f"[SERVER] Binding and serving Gradio on 0.0.0.0:{port}...", flush=True)
     demo.launch(server_name="0.0.0.0", server_port=port)
