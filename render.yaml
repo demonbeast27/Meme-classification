@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: meme-classifier-bert-clip
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app_multimodal.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"

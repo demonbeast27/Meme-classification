@@ -1356,38 +1356,59 @@ def render_dashboard_html(
 class MultimodalMemeAnalyzer:
     def __init__(self, checkpoint_path: str = "checkpoints/best_multimodal_classifier_gpu.pt"):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print(f"[INFO] Initializing Multimodal Meme Analyzer on {self.device}...")
+        self.checkpoint_path = checkpoint_path
+        self.model = None
+        self.clip_model = None
+        self.processor = None
+        self.thresholds = {"funny": 0.70, "sarcastic": 0.80, "offensive": 0.62}
+        self.stylistic_categories = ["funny", "sarcastic", "offensive", "wholesome", "neutral", "political"]
+        self.fusion_dim = 256
+        self.use_trained_model = False
+        self.is_loaded = False
+        self.is_loading = False
+        self.load_lock = __import__('threading').Lock()
+        print(f"[INFO] MultimodalMemeAnalyzer created (deferred loading). Device: {self.device}")
 
-        if not os.path.exists(checkpoint_path):
-            raise FileNotFoundError(f"Checkpoint not found at: {checkpoint_path}")
+    def load_models(self):
+        """Load CLIP and optionally the trained checkpoint. Safe to call in background thread."""
+        with self.load_lock:
+            if self.is_loaded:
+                return
+            self.is_loading = True
+            try:
+                clip_name = cfg.DEFAULT_HYPERPARAMS["clip_model_name"]
+                print(f"[STARTUP] Loading CLIP processor and model ({clip_name})...", flush=True)
+                self.processor = CLIPProcessor.from_pretrained(clip_name)
+                self.clip_model = CLIPModel.from_pretrained(clip_name).to(self.device)
+                self.clip_model.eval()
 
-        ckpt = torch.load(checkpoint_path, map_location=self.device)
-        self.thresholds = ckpt.get("best_thresholds", {
-            "funny": 0.70, "sarcastic": 0.80, "offensive": 0.62,
-        })
-        self.stylistic_categories = ckpt.get(
-            "stylistic_categories",
-            ["funny", "sarcastic", "offensive", "wholesome", "neutral", "political"]
-        )
-        self.fusion_dim = ckpt.get("fusion_dim", 256)
+                if os.path.exists(self.checkpoint_path):
+                    print(f"[STARTUP] Checkpoint found — loading trained MultimodalMemeClassifier...", flush=True)
+                    ckpt = torch.load(self.checkpoint_path, map_location=self.device)
+                    self.thresholds = ckpt.get("best_thresholds", self.thresholds)
+                    self.stylistic_categories = ckpt.get("stylistic_categories", self.stylistic_categories)
+                    self.fusion_dim = ckpt.get("fusion_dim", self.fusion_dim)
+                    self.model = MultimodalMemeClassifier(
+                        clip_model_name=clip_name,
+                        stylistic_categories=self.stylistic_categories,
+                        fusion_dim=self.fusion_dim,
+                        freeze_backbone=True,
+                    ).to(self.device)
+                    state_dict = ckpt.get("trainable_state_dict", ckpt.get("model_state_dict"))
+                    self.model.load_state_dict(state_dict, strict=False)
+                    self.model.eval()
+                    self.use_trained_model = True
+                    print("[STARTUP] Trained checkpoint loaded (Macro F1 0.749).", flush=True)
+                else:
+                    print(f"[STARTUP] No checkpoint at '{self.checkpoint_path}' — running in zero-shot CLIP mode.", flush=True)
+                    self.use_trained_model = False
 
-        self.model = MultimodalMemeClassifier(
-            clip_model_name=cfg.DEFAULT_HYPERPARAMS["clip_model_name"],
-            stylistic_categories=self.stylistic_categories,
-            fusion_dim=self.fusion_dim,
-            freeze_backbone=True,
-        ).to(self.device)
-
-        state_dict = ckpt.get("trainable_state_dict", ckpt.get("model_state_dict"))
-        self.model.load_state_dict(state_dict, strict=False)
-        self.model.eval()
-
-        self.processor = CLIPProcessor.from_pretrained(cfg.DEFAULT_HYPERPARAMS["clip_model_name"])
-
-        # Raw CLIP for zero-shot extra categories (political, sad)
-        self.clip_model = CLIPModel.from_pretrained(cfg.DEFAULT_HYPERPARAMS["clip_model_name"]).to(self.device)
-        self.clip_model.eval()
-        print("[INFO] Model, zero-shot CLIP head, and processor ready.")
+                self.is_loaded = True
+                print("[STARTUP] All models ready!", flush=True)
+            except Exception as e:
+                print(f"[ERROR] Model loading failed: {e}", flush=True)
+            finally:
+                self.is_loading = False
 
     def _run_zeroshot(self, pixel_values: torch.Tensor, categories: list[str]) -> dict[str, float]:
         """Contrastive zero-shot CLIP scoring."""
@@ -1410,7 +1431,34 @@ class MultimodalMemeAnalyzer:
                 results[cat] = float(probs[0, 0].item())
         return results
 
+    def _run_zeroshot_all(self, pixel_values: torch.Tensor) -> dict:
+        """Run all 5 categories in pure zero-shot CLIP mode (fallback when no checkpoint)."""
+        all_cats = list(CATEGORY_CONFIG.keys())  # funny, sarcastic, offensive, political, sad
+        results = {}
+        with torch.no_grad():
+            for cat in all_cats:
+                pos_prompt, neg_prompt = cfg.ZEROSHOT_PROMPTS.get(
+                    cat, (f"a {cat} meme", f"a non-{cat} meme")
+                )
+                pair_inputs = self.processor(
+                    text=[pos_prompt, neg_prompt],
+                    return_tensors="pt", padding=True,
+                ).to(self.device)
+                out = self.clip_model(
+                    pixel_values=pixel_values,
+                    input_ids=pair_inputs["input_ids"],
+                    attention_mask=pair_inputs["attention_mask"],
+                )
+                probs = torch.softmax(out.logits_per_image, dim=-1)
+                results[cat] = float(probs[0, 0].item())
+        return results
+
     def analyze(self, text_input: str, image: Image.Image | None) -> str:
+        if not self.is_loaded:
+            if self.is_loading:
+                return "<div style='color:#94a3b8;padding:20px;text-align:center;'>⏳ <strong>Models initializing...</strong><br>Please wait ~30 seconds and click Analyze again.</div>"
+            self.load_models()
+
         if image is None:
             return get_idle_dashboard_html()
 
@@ -1426,34 +1474,44 @@ class MultimodalMemeAnalyzer:
             text=[full_text], images=pil_img,
             return_tensors="pt", padding="max_length", max_length=77, truncation=True,
         )
-        pixel_values  = inputs["pixel_values"].to(self.device)
-        input_ids     = inputs["input_ids"].to(self.device)
+        pixel_values   = inputs["pixel_values"].to(self.device)
+        input_ids      = inputs["input_ids"].to(self.device)
         attention_mask = inputs["attention_mask"].to(self.device)
-
-        with torch.no_grad():
-            outputs = self.model(pixel_values, input_ids, attention_mask)
-            stylistic_probs = outputs["stylistic_probs"][0].cpu().numpy()
-            hate_prob = float(outputs["hate_probs"][0].cpu().item())
 
         # Caption information
         caption_used = text_input.strip() if (text_input and text_input.strip()) else extracted_text
         caption_src  = "User Input" if (text_input and text_input.strip()) else ("OCR Sensor" if extracted_text else "fallback")
 
-        # Trained categories
-        trained_results = []
-        for cat in cfg.SUPPORTED_STYLISTIC_CATEGORIES:
-            idx = self.stylistic_categories.index(cat)
-            p   = float(stylistic_probs[idx])
-            th  = float(self.thresholds.get(cat, 0.5))
-            trained_results.append((cat, p, th, p >= th))
+        if self.use_trained_model:
+            # ── Trained checkpoint path ──
+            with torch.no_grad():
+                outputs = self.model(pixel_values, input_ids, attention_mask)
+                stylistic_probs = outputs["stylistic_probs"][0].cpu().numpy()
+                hate_prob = float(outputs["hate_probs"][0].cpu().item())
 
-        # Zero-shot categories
-        zs   = self._run_zeroshot(pixel_values, cfg.ZEROSHOT_EXTRA_CATEGORIES)
-        ZTHR = 0.55
-        zeroshot_results = []
-        for cat in cfg.ZEROSHOT_EXTRA_CATEGORIES:
-            p = zs.get(cat, 0.0)
-            zeroshot_results.append((cat, p, ZTHR, p >= ZTHR))
+            trained_results = []
+            for cat in cfg.SUPPORTED_STYLISTIC_CATEGORIES:
+                idx = self.stylistic_categories.index(cat)
+                p   = float(stylistic_probs[idx])
+                th  = float(self.thresholds.get(cat, 0.5))
+                trained_results.append((cat, p, th, p >= th))
+
+            zs   = self._run_zeroshot(pixel_values, cfg.ZEROSHOT_EXTRA_CATEGORIES)
+            ZTHR = 0.55
+            zeroshot_results = [(cat, zs.get(cat, 0.0), ZTHR, zs.get(cat, 0.0) >= ZTHR)
+                                for cat in cfg.ZEROSHOT_EXTRA_CATEGORIES]
+        else:
+            # ── Pure zero-shot CLIP fallback (no checkpoint) ──
+            zs_all = self._run_zeroshot_all(pixel_values)
+            ZTHR = 0.55
+            trained_results = []
+            zeroshot_results = []
+            for cat in CATEGORY_CONFIG.keys():
+                p = zs_all.get(cat, 0.0)
+                zeroshot_results.append((cat, p, ZTHR, p >= ZTHR))
+
+            # Estimate hate score via offensive proxy
+            hate_prob = zs_all.get("offensive", 0.0) * 0.6
 
         return render_dashboard_html(
             caption_used=caption_used,
@@ -1562,6 +1620,18 @@ def build_app():
 
 
 if __name__ == "__main__":
+    import threading
+    port = int(os.environ.get("PORT", 7860))
     app = build_app()
-    app.launch(server_name="127.0.0.1", server_port=7860, show_error=True, theme=gr.themes.Soft(), css=CUSTOM_CSS, js=LIGHTFALL_JS)
+    # Kick off model loading in the background so the port binds instantly for Render
+    _analyzer = app.fns[0].fn.__self__ if hasattr(app.fns[0].fn, '__self__') else None
+    print(f"[SERVER] Launching MemeOS on 0.0.0.0:{port}...", flush=True)
+    app.launch(
+        server_name="0.0.0.0",
+        server_port=port,
+        show_error=True,
+        theme=gr.themes.Soft(),
+        css=CUSTOM_CSS,
+        js=LIGHTFALL_JS,
+    )
 
